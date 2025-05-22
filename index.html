@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced XML Reader</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .tree-container {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .tree-node {
+            margin: 2px 0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .tree-node:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tree-node.highlighted {
+            background-color: #fff3cd !important;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .tree-toggle {
+            cursor: pointer;
+            user-select: none;
+            width: 20px;
+            display: inline-block;
+            text-align: center;
+            color: #666;
+        }
+        
+        .tree-toggle:hover {
+            color: #333;
+        }
+        
+        .tree-element {
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .tree-attribute {
+            color: #cc6600;
+            font-style: italic;
+        }
+        
+        .tree-content {
+            color: #333;
+            margin-left: 5px;
+        }
+        
+        .tree-children {
+            margin-left: 20px;
+            display: block;
+        }
+        
+        .tree-children.collapsed {
+            display: none;
+        }
+        
+        .namespace-default { color: #0066cc; }
+        .namespace-1 { color: #cc0066; }
+        .namespace-2 { color: #00cc66; }
+        .namespace-3 { color: #cc6600; }
+        .namespace-4 { color: #6600cc; }
+        .namespace-5 { color: #cc0000; }
+        
+        .export-btn {
+            margin: 2px;
+        }
+        
+        .search-highlight {
+            background-color: #ffeb3b;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
+        
+        .filter-controls {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .drag-drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .drag-drop-area.drag-over {
+            border-color: #007bff;
+            background: #e7f3ff;
+            border-style: solid;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        }
+        
+        .drag-drop-area.drag-over::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.05) 100%);
+            border-radius: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
+        }
+        
+        .drag-drop-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .drag-over .drag-drop-icon {
+            color: #007bff;
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            80% { transform: translateY(-5px); }
+        }
+        
+        .drag-drop-text {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+        
+        .drag-over .drag-drop-text {
+            color: #007bff;
+            font-weight: 600;
+        }
+        
+        .drag-drop-subtext {
+            font-size: 0.9rem;
+            color: #adb5bd;
+            transition: color 0.3s ease;
+        }
+        
+        .drag-over .drag-drop-subtext {
+            color: #0056b3;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            margin-top: 15px;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        
+        .file-input-button {
+            background: #007bff;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .file-input-button:hover {
+            background: #0056b3;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0"><i class="fas fa-code"></i> Enhanced XML Reader</h4>
+                        <div>
+                            <button class="btn btn-outline-light" onclick="clearAll()">
+                                <i class="fas fa-trash"></i> Clear All
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- File Upload Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0"><i class="fas fa-upload"></i> File Upload</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="drag-drop-area" id="dragDropArea">
+                                            <div class="drag-drop-icon">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                            </div>
+                                            <div class="drag-drop-text">
+                                                Drag & Drop your XML file here
+                                            </div>
+                                            <div class="drag-drop-subtext">
+                                                or click to browse files
+                                            </div>
+                                            <div class="file-input-wrapper">
+                                                <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
+                                                <button class="file-input-button" onclick="document.getElementById('xmlFileInput').click()">
+                                                    <i class="fas fa-folder-open"></i> Choose File
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="alert alert-info" id="status" style="display: none;"></div>
+                        </div>
+
+                        <!-- Search and Filter Controls -->
+                        <div class="filter-controls" id="filterControls" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="searchInput" class="form-label"><i class="fas fa-search"></i> Search</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="searchInput" placeholder="Search elements or content">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="toggleRegex()">
+                                            <i class="fas fa-asterisk" id="regexIcon"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">Use regex patterns when enabled</small>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <label for="elementFilter" class="form-label"><i class="fas fa-filter"></i> Filter by Element</label>
+                                    <select class="form-select" id="elementFilter">
+                                        <option value="">All Elements</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <label class="form-label">Display Options</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="showEmpty" checked>
+                                        <label class="form-check-label" for="showEmpty">Show empty elements</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="showAttributes" checked>
+                                        <label class="form-check-label" for="showAttributes">Show attributes</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <label class="form-label">Actions</label>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-sm btn-secondary" onclick="expandAll()">
+                                            <i class="fas fa-expand-arrows-alt"></i> Expand All
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" onclick="collapseAll()">
+                                            <i class="fas fa-compress-arrows-alt"></i> Collapse All
+                                        </button>
+                                        <button class="btn btn-sm btn-warning" onclick="clearFilters()">
+                                            <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Export Options -->
+                        <div class="mb-3" id="exportSection" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0"><i class="fas fa-download"></i> Export Options</h6>
+                                </div>
+                                <div class="card-body">
+                                    <button class="btn btn-success export-btn" onclick="exportData('json')">
+                                        <i class="fas fa-file-code"></i> Export as JSON
+                                    </button>
+                                    <button class="btn btn-warning export-btn" onclick="exportData('csv')">
+                                        <i class="fas fa-file-csv"></i> Export as CSV
+                                    </button>
+                                    <button class="btn btn-info export-btn" onclick="exportData('xml')">
+                                        <i class="fas fa-file-code"></i> Export Pretty XML
+                                    </button>
+                                    <button class="btn btn-secondary export-btn" onclick="exportData('txt')">
+                                        <i class="fas fa-file-alt"></i> Export as Text
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0"><i class="fas fa-sitemap"></i> XML Tree Structure</h5>
+                                <div>
+                                    <span class="badge bg-primary" id="visibleCount">0 visible</span>
+                                    <span class="badge bg-secondary" id="totalCount">0 total</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="result" class="tree-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let parsedXMLData = null;
+        let originalXMLString = '';
+        let originalFileName = '';
+        let namespaceMap = new Map();
+        let namespaceColors = ['namespace-default', 'namespace-1', 'namespace-2', 'namespace-3', 'namespace-4', 'namespace-5'];
+        let isRegexMode = false;
+
+        // Initialize drag and drop functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent default drag behaviors on the entire page
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            reattachEventListeners();
+        });
+
+        document.getElementById('xmlFileInput').addEventListener('change', function(event) {
+            handleFileSelection(event.target.files[0]);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight(e) {
+            dragDropArea.classList.add('drag-over');
+        }
+        
+        function unhighlight(e) {
+            dragDropArea.classList.remove('drag-over');
+        }
+        
+        function handleDrop(e) {
+            const files = e.dataTransfer.files;
+            
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // Check if it's an XML file
+                if (file.type === 'text/xml' || file.type === 'application/xml' || file.name.toLowerCase().endsWith('.xml')) {
+                    handleFileSelection(file);
+                    
+                    // Update the file input to reflect the dropped file
+                    const fileInput = document.getElementById('xmlFileInput');
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                } else {
+                    showStatus('Please drop a valid XML file.', 'error');
+                }
+            }
+        }
+        
+        function handleFileSelection(file) {
+            if (!file) {
+                showStatus('Please select an XML file first.', 'error');
+                return;
+            }
+            
+            // Store the original filename
+            originalFileName = file.name;
+            
+            showStatus('Processing file...', 'info');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                originalXMLString = e.target.result;
+                try {
+                    parseXML(originalXMLString);
+                    hideStatus();
+                    
+                    // Update drag drop area to show selected file
+                    updateDragDropArea(file.name);
+                } catch (error) {
+                    showStatus('Error parsing XML file. Please check the file format.', 'error');
+                }
+            };
+            reader.onerror = function() {
+                showStatus('Error reading file. Please try again.', 'error');
+            };
+            reader.readAsText(file);
+        }
+        
+        function updateDragDropArea(fileName) {
+            const dragDropArea = document.getElementById('dragDropArea');
+            dragDropArea.innerHTML = `
+                <div class="drag-drop-icon" style="color: #28a745;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="drag-drop-text" style="color: #28a745;">
+                    File loaded successfully!
+                </div>
+                <div class="drag-drop-subtext">
+                    <strong>${fileName}</strong>
+                </div>
+                <div class="file-input-wrapper">
+                    <input class="form-control" type="file" id="xmlFileInput" accept=".xml" style="display: none;">
+                    <button class="file-input-button" type="button" id="chooseDifferentFileBtn">
+                        <i class="fas fa-folder-open"></i> Choose Different File
+                    </button>
+                </div>
+            `;
+            
+            // Reattach ALL event listeners to the updated area
+            reattachEventListeners();
+        }
+        
+        function resetDragDropArea() {
+            const dragDropArea = document.getElementById('dragDropArea');
+            dragDropArea.innerHTML = `
+                <div class="drag-drop-icon">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <div class="drag-drop-text">
+                    Drag & Drop your XML file here
+                </div>
+                <div class="drag-drop-subtext">
+                    or click to browse files
+                </div>
+                <div class="file-input-wrapper">
+                    <input class="form-control" type="file" id="xmlFileInput" accept=".xml" style="display: none;">
+                    <button class="file-input-button" type="button" id="chooseFileBtn">
+                        <i class="fas fa-folder-open"></i> Choose File
+                    </button>
+                </div>
+            `;
+            
+            // Reattach ALL event listeners
+            reattachEventListeners();
+        }
+        
+        function reattachEventListeners() {
+            const dragDropArea = document.getElementById('dragDropArea');
+            const fileInput = document.getElementById('xmlFileInput');
+            
+            // Clear any existing event listeners by cloning and replacing the element
+            const newDragDropArea = dragDropArea.cloneNode(true);
+            dragDropArea.parentNode.replaceChild(newDragDropArea, dragDropArea);
+            
+            // Get references to the new elements
+            const freshDragDropArea = document.getElementById('dragDropArea');
+            const freshFileInput = document.getElementById('xmlFileInput');
+            const fileButton = document.getElementById('chooseDifferentFileBtn') || document.getElementById('chooseFileBtn');
+            
+            // Attach file input change listener
+            if (freshFileInput) {
+                freshFileInput.addEventListener('change', function(event) {
+                    handleFileSelection(event.target.files[0]);
+                });
+            }
+            
+            // Attach button click listener
+            if (fileButton) {
+                fileButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    freshFileInput.click();
+                });
+            }
+            
+            // Attach drag and drop listeners
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                freshDragDropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                freshDragDropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                freshDragDropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            freshDragDropArea.addEventListener('drop', handleDrop, false);
+            
+            // Attach click to upload functionality (but not on the button)
+            freshDragDropArea.addEventListener('click', function(e) {
+                // Only trigger file input if clicking on the drag area itself, not the button
+                if (e.target === freshDragDropArea || 
+                    (e.target.closest('.drag-drop-area') && !e.target.closest('.file-input-button'))) {
+                    freshFileInput.click();
+                }
+            });
+        }
+        
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.display = 'block';
+            statusDiv.className = `alert alert-${type === 'error' ? 'danger' : 'info'}`;
+            statusDiv.innerHTML = type === 'info' ? 
+                `<i class="fas fa-spinner fa-spin"></i> ${message}` : 
+                `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+        }
+        
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+
+        // Add event listeners for search and filter
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('elementFilter').addEventListener('change', applyFilters);
+        document.getElementById('showEmpty').addEventListener('change', applyFilters);
+        document.getElementById('showAttributes').addEventListener('change', applyFilters);
+
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            
+            // Reset stats
+            let xmlStats = {
+                totalElements: 0,
+                uniqueElements: new Set(),
+                maxDepth: 0
+            };
+            namespaceMap.clear();
+            
+            // Check for parsing errors
+            const parseError = xmlDoc.querySelector('parsererror');
+            if (parseError) {
+                document.getElementById('result').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> XML Parsing Error: ' + 
+                    parseError.textContent + '</div>';
+                return;
+            }
+            
+            // Process namespaces
+            processNamespaces(xmlDoc.documentElement);
+            
+            // Build tree structure
+            parsedXMLData = buildTreeStructure(xmlDoc.documentElement, 0, xmlStats);
+            
+            // Populate element filter dropdown
+            populateElementFilter(xmlStats);
+            
+            // Display the tree
+            displayTree();
+            
+            // Show controls
+            document.getElementById('filterControls').style.display = 'block';
+            document.getElementById('exportSection').style.display = 'block';
+        }
+
+        function processNamespaces(element) {
+            const processElement = (el) => {
+                const namespaceURI = el.namespaceURI;
+                if (namespaceURI && !namespaceMap.has(namespaceURI)) {
+                    const colorIndex = namespaceMap.size % namespaceColors.length;
+                    namespaceMap.set(namespaceURI, {
+                        prefix: el.prefix || 'default',
+                        color: namespaceColors[colorIndex],
+                        uri: namespaceURI
+                    });
+                }
+                
+                Array.from(el.children).forEach(processElement);
+            };
+            
+            processElement(element);
+        }
+
+        function buildTreeStructure(element, depth, xmlStats) {
+            xmlStats.totalElements++;
+            xmlStats.uniqueElements.add(element.tagName);
+            xmlStats.maxDepth = Math.max(xmlStats.maxDepth, depth);
+            
+            const node = {
+                tagName: element.tagName,
+                localName: element.localName,
+                prefix: element.prefix,
+                namespaceURI: element.namespaceURI,
+                attributes: {},
+                textContent: '',
+                children: [],
+                depth: depth,
+                hasChildren: element.children.length > 0,
+                isEmpty: !element.textContent.trim() && element.children.length === 0
+            };
+            
+            // Process attributes
+            Array.from(element.attributes).forEach(attr => {
+                node.attributes[attr.name] = attr.value;
+            });
+            
+            // Get text content (only direct text, not from children)
+            let textContent = '';
+            Array.from(element.childNodes).forEach(child => {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    textContent += child.textContent.trim();
+                }
+            });
+            node.textContent = textContent;
+            
+            // Process children
+            Array.from(element.children).forEach(child => {
+                node.children.push(buildTreeStructure(child, depth + 1, xmlStats));
+            });
+            
+            return node;
+        }
+
+        function populateElementFilter(xmlStats) {
+            const select = document.getElementById('elementFilter');
+            select.innerHTML = '<option value="">All Elements</option>';
+            
+            Array.from(xmlStats.uniqueElements).sort().forEach(elementName => {
+                const option = document.createElement('option');
+                option.value = elementName;
+                option.textContent = elementName;
+                select.appendChild(option);
+            });
+        }
+
+        function displayTree() {
+            if (!parsedXMLData) return;
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = renderTreeNode(parsedXMLData);
+            
+            updateVisibleCount();
+        }
+
+        function renderTreeNode(node, isVisible = true) {
+            const namespaceInfo = namespaceMap.get(node.namespaceURI) || { color: 'namespace-default', prefix: '' };
+            const hasToggle = node.hasChildren;
+            const toggleIcon = hasToggle ? '<i class="fas fa-minus"></i>' : '<i class="fas fa-circle" style="font-size: 6px;"></i>';
+            
+            let attributesHtml = '';
+            if (Object.keys(node.attributes).length > 0) {
+                const attrStrings = Object.entries(node.attributes).map(([name, value]) => 
+                    `<span class="tree-attribute">${name}="${value}"</span>`
+                );
+                attributesHtml = ` ${attrStrings.join(' ')}`;
+            }
+            
+            let contentHtml = '';
+            if (node.textContent) {
+                contentHtml = `<span class="tree-content">${escapeHtml(node.textContent)}</span>`;
+            }
+            
+            let html = `
+                <div class="tree-node" data-element="${node.tagName}" data-visible="${isVisible}" style="margin-left: ${node.depth * 20}px;">
+                    <span class="tree-toggle" onclick="toggleNode(this)" data-has-children="${hasToggle}">
+                        ${hasToggle ? toggleIcon : ''}
+                    </span>
+                    <span class="tree-element ${namespaceInfo.color}">&lt;${node.tagName}&gt;</span>
+                    ${attributesHtml}
+                    ${contentHtml}
+                </div>
+            `;
+            
+            if (node.children.length > 0) {
+                html += `<div class="tree-children">`;
+                node.children.forEach(child => {
+                    html += renderTreeNode(child, isVisible);
+                });
+                html += `</div>`;
+            }
+            
+            return html;
+        }
+
+        function toggleNode(toggleElement) {
+            const hasChildren = toggleElement.getAttribute('data-has-children') === 'true';
+            if (!hasChildren) return;
+            
+            const treeNode = toggleElement.parentElement;
+            const childrenContainer = treeNode.nextElementSibling;
+            const icon = toggleElement.querySelector('i');
+            
+            if (childrenContainer && childrenContainer.classList.contains('tree-children')) {
+                const isCollapsed = childrenContainer.classList.contains('collapsed');
+                
+                if (isCollapsed) {
+                    childrenContainer.classList.remove('collapsed');
+                    icon.className = 'fas fa-minus';
+                } else {
+                    childrenContainer.classList.add('collapsed');
+                    icon.className = 'fas fa-plus';
+                }
+            }
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.tree-children.collapsed').forEach(el => {
+                el.classList.remove('collapsed');
+            });
+            document.querySelectorAll('.tree-toggle i.fa-plus').forEach(icon => {
+                icon.className = 'fas fa-minus';
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.tree-children').forEach(el => {
+                el.classList.add('collapsed');
+            });
+            document.querySelectorAll('.tree-toggle i.fa-minus').forEach(icon => {
+                icon.className = 'fas fa-plus';
+            });
+        }
+
+        function toggleRegex() {
+            isRegexMode = !isRegexMode;
+            const icon = document.getElementById('regexIcon');
+            const button = icon.parentElement;
+            
+            if (isRegexMode) {
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-warning');
+                icon.className = 'fas fa-asterisk';
+                icon.title = 'Regex mode enabled';
+            } else {
+                button.classList.remove('btn-warning');
+                button.classList.add('btn-outline-secondary');
+                icon.className = 'fas fa-asterisk';
+                icon.title = 'Regex mode disabled';
+            }
+            
+            applyFilters();
+        }
+
+        function clearFilters() {
+            // Reset all filter controls
+            document.getElementById('searchInput').value = '';
+            document.getElementById('elementFilter').value = '';
+            document.getElementById('showEmpty').checked = true;
+            document.getElementById('showAttributes').checked = true;
+            
+            // Reset regex mode
+            if (isRegexMode) {
+                toggleRegex();
+            }
+            
+            // Clear all applied filters and highlights
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('highlighted');
+                node.style.display = '';
+                node.setAttribute('data-visible', 'true');
+                
+                // Remove search highlights
+                const content = node.innerHTML;
+                node.innerHTML = content.replace(/<span class="search-highlight">(.*?)<\/span>/g, '$1');
+                
+                // Show all attributes
+                const attributes = node.querySelectorAll('.tree-attribute');
+                attributes.forEach(attr => attr.style.display = '');
+            });
+            
+            // Update counters
+            updateVisibleCount();
+        }
+
+        function applyFilters() {
+            if (!parsedXMLData) return;
+            
+            const searchTerm = document.getElementById('searchInput').value;
+            const elementFilter = document.getElementById('elementFilter').value;
+            const showEmpty = document.getElementById('showEmpty').checked;
+            const showAttributes = document.getElementById('showAttributes').checked;
+            
+            // Clear previous highlights
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('highlighted');
+                node.style.display = '';
+                
+                // Remove search highlights
+                const content = node.innerHTML;
+                node.innerHTML = content.replace(/<span class="search-highlight">(.*?)<\/span>/g, '$1');
+            });
+            
+            // Apply filters
+            document.querySelectorAll('.tree-node').forEach(node => {
+                const elementName = node.getAttribute('data-element');
+                const nodeText = node.textContent.toLowerCase();
+                let shouldShow = true;
+                
+                // Element filter
+                if (elementFilter && elementName !== elementFilter) {
+                    shouldShow = false;
+                }
+                
+                // Empty element filter
+                if (!showEmpty) {
+                    const hasContent = node.querySelector('.tree-content');
+                    const hasChildren = node.nextElementSibling && node.nextElementSibling.classList.contains('tree-children');
+                    if (!hasContent && !hasChildren) {
+                        shouldShow = false;
+                    }
+                }
+                
+                // Attribute display
+                if (!showAttributes) {
+                    const attributes = node.querySelectorAll('.tree-attribute');
+                    attributes.forEach(attr => attr.style.display = 'none');
+                } else {
+                    const attributes = node.querySelectorAll('.tree-attribute');
+                    attributes.forEach(attr => attr.style.display = '');
+                }
+                
+                // Search filter
+                if (searchTerm) {
+                    let matches = false;
+                    
+                    try {
+                        if (isRegexMode) {
+                            const regex = new RegExp(searchTerm, 'gi');
+                            matches = regex.test(nodeText);
+                            
+                            if (matches) {
+                                // Highlight matches
+                                const highlightedContent = node.innerHTML.replace(regex, '<span class="search-highlight">$&</span>');
+                                node.innerHTML = highlightedContent;
+                            }
+                        } else {
+                            matches = nodeText.includes(searchTerm.toLowerCase());
+                            
+                            if (matches) {
+                                // Highlight matches
+                                const regex = new RegExp(escapeRegExp(searchTerm), 'gi');
+                                const highlightedContent = node.innerHTML.replace(regex, '<span class="search-highlight">$&</span>');
+                                node.innerHTML = highlightedContent;
+                            }
+                        }
+                    } catch (e) {
+                        // Invalid regex, fall back to simple search
+                        matches = nodeText.includes(searchTerm.toLowerCase());
+                    }
+                    
+                    if (!matches) {
+                        shouldShow = false;
+                    } else {
+                        node.classList.add('highlighted');
+                    }
+                }
+                
+                node.style.display = shouldShow ? '' : 'none';
+                node.setAttribute('data-visible', shouldShow);
+            });
+            
+            updateVisibleCount();
+        }
+
+        function updateVisibleCount() {
+            const totalNodes = document.querySelectorAll('.tree-node').length;
+            const visibleNodes = document.querySelectorAll('.tree-node[data-visible="true"]').length;
+            
+            document.getElementById('totalCount').textContent = `${totalNodes} total`;
+            document.getElementById('visibleCount').textContent = `${visibleNodes} visible`;
+        }
+
+        function exportData(format) {
+            if (!parsedXMLData) return;
+            
+            // Get base filename without extension
+            const baseFileName = originalFileName ? 
+                originalFileName.replace(/\.[^/.]+$/, "") : 
+                'xml_data';
+            
+            let content = '';
+            let filename = '';
+            let mimeType = '';
+            
+            switch (format) {
+                case 'json':
+                    content = JSON.stringify(parsedXMLData, null, 2);
+                    filename = `${baseFileName}.json`;
+                    mimeType = 'application/json';
+                    break;
+                    
+                case 'csv':
+                    content = convertToCSV(parsedXMLData);
+                    filename = `${baseFileName}.csv`;
+                    mimeType = 'text/csv';
+                    break;
+                    
+                case 'xml':
+                    content = formatXML(originalXMLString);
+                    filename = `${baseFileName}_formatted.xml`;
+                    mimeType = 'application/xml';
+                    break;
+                    
+                case 'txt':
+                    content = convertToText(parsedXMLData);
+                    filename = `${baseFileName}_structure.txt`;
+                    mimeType = 'text/plain';
+                    break;
+            }
+            
+            downloadFile(content, filename, mimeType);
+        }
+
+        function convertToCSV(node, path = '', csvData = []) {
+            const currentPath = path ? `${path}/${node.tagName}` : node.tagName;
+            
+            // Add current node
+            const row = {
+                'Element Path': currentPath,
+                'Element Name': node.tagName,
+                'Content': node.textContent || '',
+                'Attributes': Object.entries(node.attributes).map(([k, v]) => `${k}="${v}"`).join('; '),
+                'Depth': node.depth,
+                'Has Children': node.hasChildren ? 'Yes' : 'No',
+                'Namespace': node.namespaceURI || '',
+                'Prefix': node.prefix || ''
+            };
+            
+            csvData.push(row);
+            
+            // Process children
+            node.children.forEach(child => {
+                convertToCSV(child, currentPath, csvData);
+            });
+            
+            // If this is the root call (path is empty), convert to CSV string and return
+            if (path === '') {
+                // Convert to CSV string
+                const headers = Object.keys(csvData[0]);
+                let csv = headers.join(',') + '\n';
+                
+                csvData.forEach(row => {
+                    const values = headers.map(header => {
+                        const value = (row[header] || '').toString();
+                        // Escape quotes and wrap in quotes if contains comma, quote, or newline
+                        if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                            return `"${value.replace(/"/g, '""')}"`;
+                        }
+                        return value;
+                    });
+                    csv += values.join(',') + '\n';
+                });
+                
+                return csv;
+            }
+            
+            return csvData;
+        }
+
+        function convertToText(node, indent = '') {
+            let text = `${indent}${node.tagName}`;
+            
+            if (Object.keys(node.attributes).length > 0) {
+                const attrs = Object.entries(node.attributes).map(([k, v]) => `${k}="${v}"`).join(' ');
+                text += ` [${attrs}]`;
+            }
+            
+            if (node.textContent) {
+                text += `: ${node.textContent}`;
+            }
+            
+            text += '\n';
+            
+            node.children.forEach(child => {
+                text += convertToText(child, indent + '  ');
+            });
+            
+            return text;
+        }
+
+        function formatXML(xmlString) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+            const serializer = new XMLSerializer();
+            
+            function formatNode(node, indent = '') {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    const text = node.textContent.trim();
+                    return text ? text : '';
+                }
+                
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    let result = `${indent}<${node.tagName}`;
+                    
+                    // Add attributes
+                    Array.from(node.attributes).forEach(attr => {
+                        result += ` ${attr.name}="${attr.value}"`;
+                    });
+                    
+                    if (node.childNodes.length === 0) {
+                        result += '/>';
+                        return result;
+                    }
+                    
+                    result += '>';
+                    
+                    let hasElementChildren = false;
+                    let content = '';
+                    
+                    Array.from(node.childNodes).forEach(child => {
+                        if (child.nodeType === Node.ELEMENT_NODE) {
+                            hasElementChildren = true;
+                            content += '\n' + formatNode(child, indent + '  ');
+                        } else if (child.nodeType === Node.TEXT_NODE) {
+                            const text = child.textContent.trim();
+                            if (text) content += text;
+                        }
+                    });
+                    
+                    if (hasElementChildren) {
+                        result += content + '\n' + indent;
+                    } else {
+                        result += content;
+                    }
+                    
+                    result += `</${node.tagName}>`;
+                    return result;
+                }
+                
+                return '';
+            }
+            
+            return formatNode(xmlDoc.documentElement);
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function clearAll() {
+            document.getElementById('xmlFileInput').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('filterControls').style.display = 'none';
+            document.getElementById('exportSection').style.display = 'none';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('elementFilter').innerHTML = '<option value="">All Elements</option>';
+            document.getElementById('showEmpty').checked = true;
+            document.getElementById('showAttributes').checked = true;
+            
+            // Reset drag drop area
+            resetDragDropArea();
+            
+            // Reset variables
+            parsedXMLData = null;
+            originalXMLString = '';
+            originalFileName = '';
+            namespaceMap.clear();
+            isRegexMode = false;
+            
+            // Reset regex button
+            const regexButton = document.getElementById('regexIcon').parentElement;
+            regexButton.classList.remove('btn-warning');
+            regexButton.classList.add('btn-outline-secondary');
+            document.getElementById('regexIcon').className = 'fas fa-asterisk';
+        }
+    </script>
+</body>
+</html>
