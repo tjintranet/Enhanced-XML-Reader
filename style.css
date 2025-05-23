@@ -231,3 +231,65 @@
 .schema-options.show {
     display: block;
 }
+
+/* XPath Functionality Styles */
+.xpath-selected {
+    background-color: #e3f2fd !important;
+    border: 2px solid #2196f3 !important;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+}
+
+.xpath-match {
+    background-color: #fff3e0 !important;
+    border: 1px solid #ff9800 !important;
+    border-radius: 3px;
+}
+
+.tree-node {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tree-node:hover {
+    background-color: #f0f8ff;
+    border-radius: 3px;
+}
+
+/* XPath Panel Specific Styles */
+#xpathPanel .form-control {
+    font-size: 0.9rem;
+}
+
+#xpathPanel .btn-group .btn {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+}
+
+#xpathPanel .font-monospace {
+    font-family: 'Courier New', Consolas, Monaco, monospace;
+    font-size: 0.85rem;
+}
+
+/* XPath Results Styling */
+#xpathResults .alert {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0;
+}
+
+/* XPath Message Toast */
+#xpathMessage {
+    max-width: 400px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Improved button spacing in XPath panel */
+#xpathPanel .input-group .btn {
+    border-left: 1px solid #dee2e6;
+}
+
+/* Format description styling */
+#formatDescription {
+    font-style: italic;
+    color: #6c757d;
+}

@@ -1,6 +1,6 @@
 # Enhanced XML Reader
 
-A powerful, web-based XML visualization and analysis tool with advanced schema generation capabilities. Parse, explore, filter, and export XML data with an intuitive drag-and-drop interface.
+A powerful, web-based XML visualization and analysis tool with advanced schema generation and XPath functionality. Parse, explore, filter, and export XML data with an intuitive drag-and-drop interface.
 
 ## 🚀 Features
 
@@ -15,6 +15,15 @@ A powerful, web-based XML visualization and analysis tool with advanced schema g
 - **Namespace Color Coding** - Visual distinction for different XML namespaces
 - **Attribute Display** - View element attributes inline with toggle options
 - **Content Preview** - See text content directly in the tree view
+- **Click-to-Select** - Click any element to generate its XPath or perform actions
+
+### 🛤️ **XPath Tools**
+- **Click-to-Generate XPath** - Click any element to automatically generate its XPath
+- **Multiple XPath Formats** - Choose between Absolute, Relative, or Smart XPath generation
+- **XPath Evaluation** - Test XPath expressions against the loaded XML document
+- **Live Result Highlighting** - See matching elements highlighted in the tree
+- **Copy to Clipboard** - One-click copying of generated XPath expressions
+- **Smart Path Optimization** - Automatically uses attributes and unique identifiers when available
 
 ### 🔍 **Advanced Search & Filtering**
 - **Real-time Search** - Find elements and content instantly
@@ -59,6 +68,7 @@ enhanced-xml-reader/
 ├── xml-core.js         # Core XML processing
 ├── xml-ui.js           # Tree display and filtering
 ├── xml-schema.js       # Schema analysis and generation
+├── xml-xpath.js        # XPath generation and evaluation
 └── README.md           # This file
 ```
 
@@ -74,6 +84,19 @@ enhanced-xml-reader/
 - **View Attributes** - Attributes are displayed inline with elements
 - **Search Content** - Use the search box to find specific elements or text
 - **Filter Elements** - Use the dropdown to show only specific element types
+
+### Working with XPath
+1. **Generate XPath** - Click any element in the tree to generate its XPath
+2. **Choose Format** - Select Absolute, Relative, or Smart XPath format
+3. **Copy XPath** - Use the copy button to copy the generated expression
+4. **Test XPath** - Enter custom XPath expressions in the test field
+5. **Evaluate** - Click "Evaluate" to test expressions and highlight matches
+6. **Clear Results** - Use the clear button (×) to reset the test field
+
+#### XPath Format Options
+- **Absolute** - Full path from root: `/root/section[1]/item[2]`
+- **Relative** - Uses descendant axis: `//item[2]`
+- **Smart** - Uses attributes when available: `//item[@id='123']`
 
 ### Generating Schemas
 1. Load an XML file
@@ -104,6 +127,14 @@ enhanced-xml-reader/
 | Target Namespace | Custom namespace URI | Empty |
 | Schema Prefix | XML Schema prefix (xs, xsd, etc.) | `xs` |
 
+### XPath Generation Options
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| Absolute | Full path from document root | `/bookstore/book[1]/title` |
+| Relative | Uses descendant axis when beneficial | `//book[@id='123']/title` |
+| Smart | Optimizes using attributes and unique content | `//book[@isbn='978-0123456789']` |
+
 ### Display Options
 
 | Option | Description |
@@ -126,17 +157,19 @@ enhanced-xml-reader/
 - **No jQuery required** - Pure vanilla JavaScript
 
 ### Architecture
-The application uses a modular architecture with three main components:
+The application uses a modular architecture with four main components:
 
 1. **xml-core.js** - File handling, XML parsing, data structures
 2. **xml-ui.js** - Tree visualization, search, filtering
 3. **xml-schema.js** - Schema analysis and XSD generation
+4. **xml-xpath.js** - XPath generation and evaluation
 
 ### Performance
 - **Client-side Processing** - No server required
 - **Memory Efficient** - Optimized for large XML files
 - **Responsive UI** - Non-blocking operations
 - **Fast Search** - Indexed element lookup
+- **Efficient XPath** - Cached path generation
 
 ## 🎨 Customization
 
@@ -146,12 +179,14 @@ Modify `style.css` to customize:
 - Tree visualization appearance
 - Namespace color coding
 - Animation effects
+- XPath highlighting styles
 
 ### Functionality
 Extend the modules:
 - Add new export formats in `xml-ui.js`
 - Implement additional data types in `xml-schema.js`
 - Add file format support in `xml-core.js`
+- Enhance XPath features in `xml-xpath.js`
 
 ## 🐛 Troubleshooting
 
@@ -167,12 +202,23 @@ Extend the modules:
 - Check browser console for error messages
 - Try with a simpler XML structure first
 
+**XPath not generating**
+- Ensure XML file is loaded and tree is displayed
+- Try clicking directly on element text, not expand/collapse icons
+- Check that XPath Tools panel is visible
+
 **Search not working**
 - Verify search terms are correct
 - Try disabling regex mode for simple searches
 - Clear filters and try again
 
+**XPath evaluation errors**
+- Verify XPath syntax is correct
+- Try simpler expressions first
+- Check browser console for detailed error messages
+
 ### Error Messages
 - **XML Parsing Error** - Invalid XML syntax
 - **File Type Error** - Non-XML file selected
 - **Memory Error** - File too large for browser
+- **XPath Evaluation Error** - Invalid XPath expression syntax

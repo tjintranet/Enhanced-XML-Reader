@@ -35,6 +35,11 @@ function displayTree() {
     resultDiv.innerHTML = renderTreeNode(parsedXMLData);
     
     updateVisibleCount();
+    
+    // Attach XPath click handlers if XPath module is loaded
+    if (typeof attachXPathClickHandlers === 'function') {
+        attachXPathClickHandlers();
+    }
 }
 
 function renderTreeNode(node, isVisible = true) {
@@ -166,6 +171,11 @@ function clearFilters() {
     
     // Update counters
     updateVisibleCount();
+    
+    // Reattach XPath handlers after filtering
+    if (typeof attachXPathClickHandlers === 'function') {
+        attachXPathClickHandlers();
+    }
 }
 
 function applyFilters() {

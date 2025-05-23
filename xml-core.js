@@ -247,6 +247,11 @@ function parseXML(xmlString) {
     // Show controls
     document.getElementById('filterControls').style.display = 'block';
     document.getElementById('exportSection').style.display = 'block';
+    
+    // Show XPath panel if module is loaded
+    if (typeof showXPathPanel === 'function') {
+        showXPathPanel();
+    }
 }
 
 function processNamespaces(element) {
@@ -354,5 +359,9 @@ function clearAll() {
     
     if (typeof resetSchemaModule === 'function') {
         resetSchemaModule();
+    }
+    
+    if (typeof resetXPathModule === 'function') {
+        resetXPathModule();
     }
 }
