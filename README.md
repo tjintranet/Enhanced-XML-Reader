@@ -1,179 +1,178 @@
 # Enhanced XML Reader
 
-A powerful, feature-rich web-based XML parser and analyzer that provides comprehensive tools for viewing, searching, filtering, and exporting XML data with an intuitive tree-based interface.
+A powerful, web-based XML visualization and analysis tool with advanced schema generation capabilities. Parse, explore, filter, and export XML data with an intuitive drag-and-drop interface.
 
-## 🌟 Features
+## 🚀 Features
 
-### 📁 File Upload & Processing
-- **Drag & Drop Interface** - Simply drag XML files onto the upload area
-- **Click to Browse** - Traditional file selection with a clean button interface
-- **Visual Feedback** - Animated drag effects and processing indicators
-- **File Validation** - Automatic XML file type validation
-- **Error Handling** - Clear error messages for invalid files or parsing issues
+### 📁 **File Processing**
+- **Drag & Drop Interface** - Modern file upload with visual feedback
+- **XML Validation** - Real-time parsing with detailed error reporting
+- **Large File Support** - Efficiently handles complex XML structures
+- **File Type Validation** - Automatically detects and validates XML files
 
-### 🌳 XML Tree Visualization
-- **Expandable Tree Structure** - Navigate complex XML hierarchies with collapsible nodes
-- **Visual Hierarchy** - Clear indentation and nesting to show parent-child relationships
-- **Interactive Navigation** - Click to expand/collapse individual nodes or use Expand/Collapse All
-- **Clean Display** - Professional tree view with proper spacing and typography
+### 🌳 **Interactive Tree Visualization**
+- **Collapsible Tree Structure** - Navigate large XML documents easily
+- **Namespace Color Coding** - Visual distinction for different XML namespaces
+- **Attribute Display** - View element attributes inline with toggle options
+- **Content Preview** - See text content directly in the tree view
 
-### 🏷️ Comprehensive Element Display
-- **Complete Attribute Support** - Shows all XML attributes with name-value pairs
-- **Namespace Handling** - Proper namespace detection with color-coded prefixes
-- **Content Display** - Shows element text content alongside structural information
-- **Toggle Controls** - Show/hide attributes and empty elements as needed
-
-### 🎨 Namespace Support
-- **Automatic Detection** - Identifies and processes XML namespaces
-- **Color Coding** - Different colors for different namespaces for easy identification
-- **Prefix Display** - Shows namespace prefixes properly
-- **URI Tracking** - Maintains namespace URI information
-
-### 🔍 Advanced Search & Filtering
-- **Real-time Search** - Search elements and content as you type
-- **Regex Support** - Toggle regex mode for advanced pattern matching
-- **Highlighted Results** - Search matches highlighted in yellow
-- **Element Filtering** - Filter by specific element types via dropdown
+### 🔍 **Advanced Search & Filtering**
+- **Real-time Search** - Find elements and content instantly
+- **Regex Support** - Use regular expressions for complex searches
+- **Element Filtering** - Filter by specific element types
+- **Search Highlighting** - Visual highlighting of search matches
 - **Display Options** - Show/hide empty elements and attributes
-- **Clear Filters** - One-click reset of all applied filters
 
-### 📊 Export Capabilities
-- **Multiple Formats** - Export to JSON, CSV, formatted XML, and text
-- **Smart Naming** - Exported files retain the original filename with appropriate extensions
-- **Format-Specific Processing**:
-  - **JSON** - Complete tree structure as JavaScript Object Notation
-  - **CSV** - Flattened tabular format with all element details
-  - **Formatted XML** - Pretty-printed XML with proper indentation
-  - **Text Structure** - Simple hierarchical text representation
+### 📊 **Multiple Export Formats**
+- **JSON Export** - Convert XML structure to JSON format
+- **CSV Export** - Tabular representation with element paths and metadata
+- **Pretty XML** - Formatted XML with proper indentation
+- **Text Structure** - Simple text-based tree representation
+- **XSD Schema** - Generate XML Schema Definition files
 
-### 🎯 User Experience
-- **Responsive Design** - Works seamlessly on desktop and mobile devices
-- **Bootstrap Styling** - Modern, professional appearance
-- **Font Awesome Icons** - Clear visual indicators throughout the interface
-- **Smooth Animations** - Polished interactions and transitions
-- **Accessibility** - Keyboard navigation and screen reader friendly
+### 🏗️ **Schema Generation (XSD)**
+- **Automatic Analysis** - Deep structural analysis of XML documents
+- **Data Type Inference** - Smart detection of content types (string, integer, date, etc.)
+- **Occurrence Patterns** - Calculate minOccurs/maxOccurs based on actual data
+- **Namespace Support** - Handle complex namespace scenarios
+- **Customizable Options** - Control schema generation behavior
+- **Preview Mode** - Review generated schemas before download
 
-## 🚀 How to Use
+## 🛠️ Installation
 
-### Getting Started
-1. **Upload an XML File**:
-   - Drag and drop an XML file onto the upload area, or
-   - Click "Choose File" to browse and select an XML file
+### Quick Start
+1. Clone or download the repository
+2. Open `index.html` in a modern web browser
+3. No server setup required - runs entirely client-side!
 
-2. **Explore the Tree Structure**:
-   - Click the +/- icons to expand/collapse nodes
-   - Use "Expand All" or "Collapse All" for quick navigation
-   - Hover over elements to see hover effects
+```bash
+git clone https://github.com/yourusername/enhanced-xml-reader.git
+cd enhanced-xml-reader
+# Open index.html in your browser
+```
 
-### Search and Filter
-3. **Search Content**:
-   - Type in the search box to find specific elements or content
-   - Click the asterisk button to enable regex pattern matching
-   - Results are highlighted and the tree is filtered automatically
+### File Structure
+```
+enhanced-xml-reader/
+├── index.html          # Main HTML structure
+├── style.css           # Styling and animations
+├── xml-core.js         # Core XML processing
+├── xml-ui.js           # Tree display and filtering
+├── xml-schema.js       # Schema analysis and generation
+└── README.md           # This file
+```
 
-4. **Apply Filters**:
-   - Use the element dropdown to filter by specific XML elements
-   - Toggle "Show empty elements" and "Show attributes" as needed
-   - Click "Clear Filters" to reset all filters at once
+## 🎯 Usage
 
-### Export Data
-5. **Export Your Data**:
-   - Choose from JSON, CSV, Formatted XML, or Text formats
-   - Files are automatically named based on your original filename
-   - Downloads start immediately
+### Loading XML Files
+1. **Drag & Drop** - Simply drag an XML file onto the upload area
+2. **File Browser** - Click "Choose File" to select from your computer
+3. **Automatic Processing** - File is parsed and visualized immediately
 
-## 🛠️ Technologies Used
+### Exploring XML Structure
+- **Expand/Collapse** - Click the arrow icons to navigate the tree
+- **View Attributes** - Attributes are displayed inline with elements
+- **Search Content** - Use the search box to find specific elements or text
+- **Filter Elements** - Use the dropdown to show only specific element types
 
-- **HTML5** - Modern semantic markup
-- **CSS3** - Advanced styling with animations and transitions
-- **JavaScript (ES6+)** - Modern vanilla JavaScript with DOM manipulation
-- **Bootstrap 5.3.2** - Responsive UI framework
-- **Font Awesome 6.4.0** - Professional icon library
+### Generating Schemas
+1. Load an XML file
+2. Click "Export Schema (XSD)"
+3. Configure generation options:
+   - **Occurrence Indicators** - Include minOccurs/maxOccurs
+   - **Data Type Inference** - Automatically detect data types
+   - **Annotations** - Include documentation in schema
+   - **Target Namespace** - Set custom namespace
+4. Preview or download the generated XSD
 
-## 💡 Use Cases
+### Export Options
+- **JSON** - Full tree structure as JSON
+- **CSV** - Element data in tabular format
+- **Pretty XML** - Formatted XML with indentation
+- **Text** - Simple text tree representation
+- **XSD Schema** - XML Schema Definition
 
-### Development & Debugging
-- **API Response Analysis** - Examine XML API responses in detail
-- **Configuration File Review** - Navigate complex configuration XML files
-- **Data Structure Validation** - Verify XML structure and content
-- **Schema Development** - Understand XML schemas and namespaces
+## ⚙️ Configuration
 
-### Data Processing
-- **Data Migration** - Convert XML to other formats (JSON, CSV)
-- **Content Extraction** - Search and filter specific XML content
-- **Document Analysis** - Analyze large XML documents efficiently
-- **Format Conversion** - Transform XML into various export formats
+### Schema Generation Options
 
-### Education & Learning
-- **XML Learning Tool** - Understand XML structure and hierarchy
-- **Namespace Education** - Learn about XML namespaces and prefixes
-- **Data Format Comparison** - See how XML translates to other formats
-- **Best Practices** - Observe well-formed XML structure
+| Option | Description | Default |
+|--------|-------------|---------|
+| Include Occurrence | Add minOccurs/maxOccurs attributes | ✅ Enabled |
+| Infer Data Types | Detect string, integer, date, etc. | ✅ Enabled |
+| Include Annotations | Add documentation to schema | ✅ Enabled |
+| Target Namespace | Custom namespace URI | Empty |
+| Schema Prefix | XML Schema prefix (xs, xsd, etc.) | `xs` |
 
-## 🔧 Technical Features
+### Display Options
 
-### Performance Optimizations
-- **Efficient Parsing** - Fast XML parsing using native DOMParser
-- **Memory Management** - Proper cleanup of event listeners and data
-- **Lazy Loading** - Tree nodes rendered on-demand for large files
-- **Responsive Updates** - Real-time filtering without performance lag
+| Option | Description |
+|--------|-------------|
+| Show Empty Elements | Display elements with no content |
+| Show Attributes | Display element attributes inline |
+| Regex Search | Enable regular expression search |
 
-### Error Handling
-- **Parsing Error Detection** - Clear messages for malformed XML
-- **File Type Validation** - Prevents processing of non-XML files
-- **Graceful Degradation** - Handles edge cases and unexpected input
-- **User Feedback** - Informative status messages and error reporting
+## 🔧 Technical Details
 
 ### Browser Compatibility
-- **Modern Browsers** - Works in all current browsers (Chrome, Firefox, Safari, Edge)
-- **Progressive Enhancement** - Core functionality works even with JavaScript limitations
-- **Mobile Responsive** - Full functionality on tablets and smartphones
-- **Cross-Platform** - Consistent experience across operating systems
+- **Chrome** 80+ ✅
+- **Firefox** 75+ ✅
+- **Safari** 13+ ✅
+- **Edge** 80+ ✅
 
-## 📋 File Format Support
+### Dependencies
+- **Bootstrap 5.3.2** - UI framework
+- **Font Awesome 6.4.0** - Icons
+- **No jQuery required** - Pure vanilla JavaScript
 
-### Input Formats
-- **XML Files** (.xml extension)
-- **XML MIME Types** (text/xml, application/xml)
-- **Various XML Variants** (RSS, SOAP, XHTML, etc.)
+### Architecture
+The application uses a modular architecture with three main components:
 
-### Export Formats
-- **JSON** - JavaScript Object Notation with proper structure
-- **CSV** - Comma-separated values with comprehensive element data
-- **XML** - Formatted/pretty-printed XML with indentation
-- **TXT** - Simple text-based tree structure
+1. **xml-core.js** - File handling, XML parsing, data structures
+2. **xml-ui.js** - Tree visualization, search, filtering
+3. **xml-schema.js** - Schema analysis and XSD generation
 
-## 🎨 Interface Highlights
+### Performance
+- **Client-side Processing** - No server required
+- **Memory Efficient** - Optimized for large XML files
+- **Responsive UI** - Non-blocking operations
+- **Fast Search** - Indexed element lookup
 
-### Visual Design
-- **Clean Layout** - Uncluttered interface focused on content
-- **Color-Coded Elements** - Namespaces and element types clearly distinguished
-- **Intuitive Icons** - Font Awesome icons provide clear visual cues
-- **Professional Styling** - Bootstrap components for consistent appearance
+## 🎨 Customization
 
-### Interactive Elements
-- **Hover Effects** - Visual feedback on interactive elements
-- **Smooth Transitions** - CSS animations enhance user experience
-- **Visual States** - Clear indication of active, hover, and selected states
-- **Loading Indicators** - Progress feedback during file processing
+### Styling
+Modify `style.css` to customize:
+- Color schemes and themes
+- Tree visualization appearance
+- Namespace color coding
+- Animation effects
 
-## 🔒 Privacy & Security
+### Functionality
+Extend the modules:
+- Add new export formats in `xml-ui.js`
+- Implement additional data types in `xml-schema.js`
+- Add file format support in `xml-core.js`
 
-- **Client-Side Processing** - All XML parsing happens in your browser
-- **No Server Upload** - Files never leave your device
-- **No Data Storage** - No cookies or local storage of your XML data
-- **Secure by Design** - No external dependencies beyond CDN resources
+## 🐛 Troubleshooting
 
-## 🎯 Getting Started
+### Common Issues
 
-This is a single HTML file that runs entirely in your browser. Simply:
+**File won't load**
+- Ensure file is valid XML
+- Check file size (very large files may take time)
+- Verify file extension is .xml
 
-1. Download the HTML file
-2. Open it in any modern web browser
-3. Start uploading and analyzing XML files immediately
+**Schema generation fails**
+- Confirm XML file is loaded successfully
+- Check browser console for error messages
+- Try with a simpler XML structure first
 
-No installation, no server setup, no configuration required!
+**Search not working**
+- Verify search terms are correct
+- Try disabling regex mode for simple searches
+- Clear filters and try again
 
----
-
-**Enhanced XML Reader** - Making XML analysis simple, powerful, and accessible.
+### Error Messages
+- **XML Parsing Error** - Invalid XML syntax
+- **File Type Error** - Non-XML file selected
+- **Memory Error** - File too large for browser

@@ -1,0 +1,233 @@
+/* Enhanced XML Reader Styles */
+
+.tree-container {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.tree-node {
+    margin: 2px 0;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+
+.tree-node:hover {
+    background-color: #f8f9fa;
+}
+
+.tree-node.highlighted {
+    background-color: #fff3cd !important;
+    border: 1px solid #ffeaa7;
+}
+
+.tree-toggle {
+    cursor: pointer;
+    user-select: none;
+    width: 20px;
+    display: inline-block;
+    text-align: center;
+    color: #666;
+}
+
+.tree-toggle:hover {
+    color: #333;
+}
+
+.tree-element {
+    font-weight: bold;
+    color: #0066cc;
+}
+
+.tree-attribute {
+    color: #cc6600;
+    font-style: italic;
+}
+
+.tree-content {
+    color: #333;
+    margin-left: 5px;
+}
+
+.tree-children {
+    margin-left: 20px;
+    display: block;
+}
+
+.tree-children.collapsed {
+    display: none;
+}
+
+/* Namespace color coding */
+.namespace-default { color: #0066cc; }
+.namespace-1 { color: #cc0066; }
+.namespace-2 { color: #00cc66; }
+.namespace-3 { color: #cc6600; }
+.namespace-4 { color: #6600cc; }
+.namespace-5 { color: #cc0000; }
+
+/* Export and UI Elements */
+.export-btn {
+    margin: 2px;
+}
+
+.search-highlight {
+    background-color: #ffeb3b;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+.filter-controls {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+/* Drag and Drop Area */
+.drag-drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    position: relative;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.drag-drop-area.drag-over {
+    border-color: #007bff;
+    background: #e7f3ff;
+    border-style: solid;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.drag-drop-area.drag-over::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.05) 100%);
+    border-radius: 8px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.5; }
+}
+
+.drag-drop-icon {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.drag-over .drag-drop-icon {
+    color: #007bff;
+    animation: bounce 0.6s ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    80% { transform: translateY(-5px); }
+}
+
+.drag-drop-text {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.drag-over .drag-drop-text {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.drag-drop-subtext {
+    font-size: 0.9rem;
+    color: #adb5bd;
+    transition: color 0.3s ease;
+}
+
+.drag-over .drag-drop-subtext {
+    color: #0056b3;
+}
+
+/* File Input Styling */
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.file-input-wrapper input[type=file] {
+    position: absolute;
+    left: -9999px;
+}
+
+.file-input-button {
+    background: #007bff;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.file-input-button:hover {
+    background: #0056b3;
+}
+
+/* Stats Cards */
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    display: block;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+/* Schema Export Options */
+.schema-options {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    display: none;
+}
+
+.schema-options.show {
+    display: block;
+}
