@@ -1,5 +1,5 @@
 /**
- * XML Schema Module
+ * XML Schema Module - Optimized
  * Handles schema analysis and XSD generation functionality
  */
 
@@ -7,7 +7,10 @@
 let schemaAnalysis = null;
 let generatedSchema = '';
 
-// Schema Analysis Functions
+// =============================================================================
+// SCHEMA ANALYSIS (Optimized)
+// =============================================================================
+
 function analyzeForSchema(rootElement) {
     const analysis = {
         elements: new Map(),
@@ -70,11 +73,7 @@ function analyzeForSchema(rootElement) {
         childElements.forEach(child => {
             elementInfo.children.add(child.tagName);
             
-            // Count occurrences for minOccurs/maxOccurs
-            if (!childCounts.has(child.tagName)) {
-                childCounts.set(child.tagName, 0);
-            }
-            childCounts.set(child.tagName, childCounts.get(child.tagName) + 1);
+            childCounts.set(child.tagName, (childCounts.get(child.tagName) || 0) + 1);
             
             // Record parent relationship
             if (!analysis.elements.has(child.tagName)) {
@@ -93,7 +92,6 @@ function analyzeForSchema(rootElement) {
             }
             analysis.elements.get(child.tagName).parents.add(elementName);
             
-            // Recursively analyze child
             analyzeElement(child, currentPath);
         });
 
@@ -119,77 +117,48 @@ function analyzeForSchema(rootElement) {
 function inferDataType(value) {
     if (!value || value.trim() === '') return 'string';
     
-    // Check for boolean
-    if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-        return 'boolean';
+    // Data type patterns
+    const patterns = {
+        boolean: /^(true|false)$/i,
+        integer: /^-?\d+$/,
+        decimal: /^-?\d*\.\d+$/,
+        date: /^\d{4}-\d{2}-\d{2}$/,
+        dateTime: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/,
+        time: /^\d{2}:\d{2}:\d{2}/
+    };
+    
+    for (const [type, pattern] of Object.entries(patterns)) {
+        if (pattern.test(value)) {
+            return type;
+        }
     }
     
-    // Check for integer
-    if (/^-?\d+$/.test(value)) {
-        return 'integer';
-    }
-    
-    // Check for decimal
-    if (/^-?\d*\.\d+$/.test(value)) {
-        return 'decimal';
-    }
-    
-    // Check for date (ISO format)
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-        return 'date';
-    }
-    
-    // Check for dateTime (ISO format)
-    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-        return 'dateTime';
-    }
-    
-    // Check for time
-    if (/^\d{2}:\d{2}:\d{2}/.test(value)) {
-        return 'time';
-    }
-    
-    // Default to string
     return 'string';
 }
 
-// Schema Generation Functions
+// =============================================================================
+// XSD GENERATION (Optimized)
+// =============================================================================
+
 function generateXSDSchema() {
     if (!schemaAnalysis) return '';
 
-    const includeOccurrence = document.getElementById('includeOccurrence').checked;
-    const inferDataTypes = document.getElementById('inferDataTypes').checked;
-    const includeAnnotations = document.getElementById('includeAnnotations').checked;
-    const targetNamespace = document.getElementById('targetNamespace').value.trim();
-    const schemaPrefix = document.getElementById('schemaPrefix').value.trim() || 'xs';
+    const config = getSchemaConfig();
+    const { schemaPrefix } = config;
 
-    let xsd = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xsd += `<${schemaPrefix}:schema xmlns:${schemaPrefix}="http://www.w3.org/2001/XMLSchema"`;
+    let xsd = generateSchemaHeader(config);
     
-    if (targetNamespace) {
-        xsd += `\n    targetNamespace="${targetNamespace}"`;
-        xsd += `\n    xmlns="${targetNamespace}"`;
-    }
-    
-    xsd += `\n    elementFormDefault="qualified">\n\n`;
-
-    if (includeAnnotations) {
-        xsd += `  <${schemaPrefix}:annotation>\n`;
-        xsd += `    <${schemaPrefix}:documentation>\n`;
-        xsd += `      Generated XSD schema from XML file: ${originalFileName || 'uploaded file'}\n`;
-        xsd += `      Generated on: ${new Date().toISOString()}\n`;
-        xsd += `      Total elements analyzed: ${schemaAnalysis.elements.size}\n`;
-        xsd += `    </${schemaPrefix}:documentation>\n`;
-        xsd += `  </${schemaPrefix}:annotation>\n\n`;
+    if (config.includeAnnotations) {
+        xsd += generateSchemaDocumentation(schemaPrefix);
     }
 
     // Define root element
     xsd += `  <${schemaPrefix}:element name="${schemaAnalysis.rootElement}" type="${schemaAnalysis.rootElement}Type"/>\n\n`;
 
-    // Generate complex types for each element that has children or attributes
+    // Generate complex types
     schemaAnalysis.elements.forEach((elementInfo, elementName) => {
         if (elementInfo.children.size > 0 || elementInfo.attributes.size > 0) {
-            xsd += generateComplexType(elementInfo, schemaPrefix, includeOccurrence, inferDataTypes, includeAnnotations);
+            xsd += generateComplexType(elementInfo, config);
         }
     });
 
@@ -197,67 +166,64 @@ function generateXSDSchema() {
     return xsd;
 }
 
-function generateComplexType(elementInfo, schemaPrefix, includeOccurrence, inferDataTypes, includeAnnotations) {
+function getSchemaConfig() {
+    return {
+        includeOccurrence: document.getElementById('includeOccurrence')?.checked ?? true,
+        inferDataTypes: document.getElementById('inferDataTypes')?.checked ?? true,
+        includeAnnotations: document.getElementById('includeAnnotations')?.checked ?? true,
+        targetNamespace: document.getElementById('targetNamespace')?.value.trim() || '',
+        schemaPrefix: document.getElementById('schemaPrefix')?.value.trim() || 'xs'
+    };
+}
+
+function generateSchemaHeader(config) {
+    const { schemaPrefix, targetNamespace } = config;
+    
+    let header = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    header += `<${schemaPrefix}:schema xmlns:${schemaPrefix}="http://www.w3.org/2001/XMLSchema"`;
+    
+    if (targetNamespace) {
+        header += `\n    targetNamespace="${targetNamespace}"`;
+        header += `\n    xmlns="${targetNamespace}"`;
+    }
+    
+    header += `\n    elementFormDefault="qualified">\n\n`;
+    return header;
+}
+
+function generateSchemaDocumentation(schemaPrefix) {
+    return `  <${schemaPrefix}:annotation>\n` +
+           `    <${schemaPrefix}:documentation>\n` +
+           `      Generated XSD schema from XML file: ${originalFileName || 'uploaded file'}\n` +
+           `      Generated on: ${new Date().toISOString()}\n` +
+           `      Total elements analyzed: ${schemaAnalysis.elements.size}\n` +
+           `    </${schemaPrefix}:documentation>\n` +
+           `  </${schemaPrefix}:annotation>\n\n`;
+}
+
+function generateComplexType(elementInfo, config) {
+    const { schemaPrefix, includeOccurrence, inferDataTypes, includeAnnotations } = config;
+    
     let complexType = `  <${schemaPrefix}:complexType name="${elementInfo.name}Type">\n`;
 
     if (includeAnnotations && (elementInfo.children.size > 0 || elementInfo.attributes.size > 0)) {
-        complexType += `    <${schemaPrefix}:annotation>\n`;
-        complexType += `      <${schemaPrefix}:documentation>\n`;
-        complexType += `        Element: ${elementInfo.name}\n`;
-        if (elementInfo.children.size > 0) {
-            complexType += `        Child elements: ${Array.from(elementInfo.children).join(', ')}\n`;
-        }
-        if (elementInfo.attributes.size > 0) {
-            complexType += `        Attributes: ${Array.from(elementInfo.attributes.keys()).join(', ')}\n`;
-        }
-        complexType += `      </${schemaPrefix}:documentation>\n`;
-        complexType += `    </${schemaPrefix}:annotation>\n`;
+        complexType += generateElementDocumentation(elementInfo, schemaPrefix);
     }
 
-    // Handle mixed content (elements with both text content and child elements)
     const hasTextContent = elementInfo.contentTypes.size > 0;
     const hasChildElements = elementInfo.children.size > 0;
     
     if (hasTextContent && hasChildElements) {
-        complexType += `    <${schemaPrefix}:complexContent>\n`;
-        complexType += `      <${schemaPrefix}:extension base="${schemaPrefix}:string">\n`;
-        complexType += `        <${schemaPrefix}:sequence>\n`;
-        
-        elementInfo.children.forEach(childName => {
-            complexType += generateChildElement(childName, elementInfo, schemaPrefix, includeOccurrence);
-        });
-        
-        complexType += `        </${schemaPrefix}:sequence>\n`;
-        complexType += `      </${schemaPrefix}:extension>\n`;
-        complexType += `    </${schemaPrefix}:complexContent>\n`;
+        complexType += generateMixedContent(elementInfo, config);
     } else if (hasChildElements) {
-        // Only child elements
-        complexType += `    <${schemaPrefix}:sequence>\n`;
-        
-        elementInfo.children.forEach(childName => {
-            complexType += generateChildElement(childName, elementInfo, schemaPrefix, includeOccurrence);
-        });
-        
-        complexType += `    </${schemaPrefix}:sequence>\n`;
+        complexType += generateElementOnlyContent(elementInfo, config);
     } else if (hasTextContent) {
-        // Only text content
-        complexType += `    <${schemaPrefix}:simpleContent>\n`;
-        const dataType = inferDataTypes && elementInfo.contentTypes.size === 1 ? 
-            Array.from(elementInfo.contentTypes)[0] : 'string';
-        complexType += `      <${schemaPrefix}:extension base="${schemaPrefix}:${dataType}">\n`;
-        
-        // Add attributes to simple content
-        elementInfo.attributes.forEach((attrInfo, attrName) => {
-            complexType += generateAttribute(attrInfo, schemaPrefix, inferDataTypes);
-        });
-        
-        complexType += `      </${schemaPrefix}:extension>\n`;
-        complexType += `    </${schemaPrefix}:simpleContent>\n`;
+        complexType += generateTextOnlyContent(elementInfo, config);
     }
 
     // Add attributes (if not already added in simpleContent)
     if (!hasTextContent && elementInfo.attributes.size > 0) {
-        elementInfo.attributes.forEach((attrInfo, attrName) => {
+        elementInfo.attributes.forEach((attrInfo) => {
             complexType += generateAttribute(attrInfo, schemaPrefix, inferDataTypes);
         });
     }
@@ -266,15 +232,82 @@ function generateComplexType(elementInfo, schemaPrefix, includeOccurrence, infer
     return complexType;
 }
 
-function generateChildElement(childName, parentInfo, schemaPrefix, includeOccurrence) {
+function generateElementDocumentation(elementInfo, schemaPrefix) {
+    let doc = `    <${schemaPrefix}:annotation>\n`;
+    doc += `      <${schemaPrefix}:documentation>\n`;
+    doc += `        Element: ${elementInfo.name}\n`;
+    
+    if (elementInfo.children.size > 0) {
+        doc += `        Child elements: ${Array.from(elementInfo.children).join(', ')}\n`;
+    }
+    if (elementInfo.attributes.size > 0) {
+        doc += `        Attributes: ${Array.from(elementInfo.attributes.keys()).join(', ')}\n`;
+    }
+    
+    doc += `      </${schemaPrefix}:documentation>\n`;
+    doc += `    </${schemaPrefix}:annotation>\n`;
+    return doc;
+}
+
+function generateMixedContent(elementInfo, config) {
+    const { schemaPrefix } = config;
+    
+    let content = `    <${schemaPrefix}:complexContent>\n`;
+    content += `      <${schemaPrefix}:extension base="${schemaPrefix}:string">\n`;
+    content += `        <${schemaPrefix}:sequence>\n`;
+    
+    elementInfo.children.forEach(childName => {
+        content += generateChildElement(childName, elementInfo, config);
+    });
+    
+    content += `        </${schemaPrefix}:sequence>\n`;
+    content += `      </${schemaPrefix}:extension>\n`;
+    content += `    </${schemaPrefix}:complexContent>\n`;
+    return content;
+}
+
+function generateElementOnlyContent(elementInfo, config) {
+    const { schemaPrefix } = config;
+    
+    let content = `    <${schemaPrefix}:sequence>\n`;
+    
+    elementInfo.children.forEach(childName => {
+        content += generateChildElement(childName, elementInfo, config);
+    });
+    
+    content += `    </${schemaPrefix}:sequence>\n`;
+    return content;
+}
+
+function generateTextOnlyContent(elementInfo, config) {
+    const { schemaPrefix, inferDataTypes } = config;
+    
+    let content = `    <${schemaPrefix}:simpleContent>\n`;
+    const dataType = inferDataTypes && elementInfo.contentTypes.size === 1 ? 
+        Array.from(elementInfo.contentTypes)[0] : 'string';
+    content += `      <${schemaPrefix}:extension base="${schemaPrefix}:${dataType}">\n`;
+    
+    // Add attributes to simple content
+    elementInfo.attributes.forEach((attrInfo) => {
+        content += generateAttribute(attrInfo, schemaPrefix, inferDataTypes);
+    });
+    
+    content += `      </${schemaPrefix}:extension>\n`;
+    content += `    </${schemaPrefix}:simpleContent>\n`;
+    return content;
+}
+
+function generateChildElement(childName, parentInfo, config) {
+    const { schemaPrefix, includeOccurrence } = config;
+    
     let element = `      <${schemaPrefix}:element name="${childName}"`;
     
-    // Determine if this child has its own complex type
+    // Determine element type
     const childInfo = schemaAnalysis.elements.get(childName);
     if (childInfo && (childInfo.children.size > 0 || childInfo.attributes.size > 0)) {
         element += ` type="${childName}Type"`;
     } else {
-        // Simple element - determine type from content
+        // Simple element
         if (childInfo && childInfo.contentTypes.size === 1) {
             const dataType = Array.from(childInfo.contentTypes)[0];
             element += ` type="${schemaPrefix}:${dataType}"`;
@@ -313,10 +346,15 @@ function generateAttribute(attrInfo, schemaPrefix, inferDataTypes) {
     return attribute;
 }
 
-// Schema Export UI Functions
+// =============================================================================
+// UI FUNCTIONS (Optimized)
+// =============================================================================
+
 function toggleSchemaOptions() {
     const options = document.getElementById('schemaOptions');
-    options.classList.toggle('show');
+    if (options) {
+        options.classList.toggle('show');
+    }
 }
 
 function generateSchema() {
@@ -342,7 +380,10 @@ function previewSchema() {
     }
 
     generatedSchema = generateXSDSchema();
-    document.getElementById('schemaPreviewContent').textContent = generatedSchema;
+    const previewContent = document.getElementById('schemaPreviewContent');
+    if (previewContent) {
+        previewContent.textContent = generatedSchema;
+    }
     
     const modal = new bootstrap.Modal(document.getElementById('schemaPreviewModal'));
     modal.show();
@@ -359,17 +400,38 @@ function downloadPreviewedSchema() {
     downloadFile(generatedSchema, filename, 'application/xml');
 }
 
-// Reset Schema Module
+// =============================================================================
+// RESET FUNCTIONS (Optimized)
+// =============================================================================
+
 function resetSchemaModule() {
-    // Reset schema options
-    document.getElementById('schemaOptions').classList.remove('show');
-    document.getElementById('includeOccurrence').checked = true;
-    document.getElementById('inferDataTypes').checked = true;
-    document.getElementById('includeAnnotations').checked = true;
-    document.getElementById('targetNamespace').value = '';
-    document.getElementById('schemaPrefix').value = 'xs';
+    // Reset schema options UI
+    const schemaOptions = document.getElementById('schemaOptions');
+    if (schemaOptions) {
+        schemaOptions.classList.remove('show');
+    }
     
-    // Reset schema variables
+    // Reset form controls to defaults
+    const defaults = {
+        includeOccurrence: true,
+        inferDataTypes: true,
+        includeAnnotations: true,
+        targetNamespace: '',
+        schemaPrefix: 'xs'
+    };
+    
+    Object.entries(defaults).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            if (typeof value === 'boolean') {
+                element.checked = value;
+            } else {
+                element.value = value;
+            }
+        }
+    });
+    
+    // Reset module variables
     generatedSchema = '';
     schemaAnalysis = null;
 }
