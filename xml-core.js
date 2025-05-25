@@ -35,7 +35,7 @@ function initializeCore() {
         document.body.addEventListener(eventName, preventDefaults, false);
     });
     
-    // Initialize event listeners
+    // Simple initialization
     attachEventListeners();
     
     // Initialize UI state
@@ -69,14 +69,48 @@ function attachEventListeners() {
     const dragDropArea = document.getElementById('dragDropArea');
     const fileInput = document.getElementById('xmlFileInput');
     
+    console.log('attachEventListeners called');
+    console.log('dragDropArea found:', !!dragDropArea);
+    console.log('fileInput found:', !!fileInput);
+    
     if (!dragDropArea || !fileInput) {
         console.warn('Core UI elements not found, retrying...');
         setTimeout(attachEventListeners, 500);
         return;
     }
     
-    // File input change event
-    fileInput.addEventListener('change', handleFileInputChange);
+    // Remove any existing listeners first
+    const newFileInput = fileInput.cloneNode(true);
+    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+    
+    // Get fresh reference
+    const freshFileInput = document.getElementById('xmlFileInput');
+    console.log('Fresh file input found:', !!freshFileInput);
+    
+    // Add multiple event listeners for Safari compatibility
+    const handleFileChange = function(event) {
+        console.log('=== FILE INPUT CHANGE EVENT ===');
+        console.log('Event type:', event.type);
+        console.log('Event:', event);
+        console.log('Files:', event.target.files);
+        console.log('Files length:', event.target.files.length);
+        
+        if (event.target.files.length > 0) {
+            const file = event.target.files[0];
+            console.log('File selected:', file.name, file.type, file.size);
+            handleFileSelection(file);
+        } else {
+            console.log('No files selected');
+        }
+    };
+    
+    // Multiple event types for Safari compatibility
+    freshFileInput.addEventListener('change', handleFileChange);
+    freshFileInput.addEventListener('input', handleFileChange);
+    freshFileInput.onchange = handleFileChange;
+    freshFileInput.oninput = handleFileChange;
+    
+    console.log('File input change listeners attached (multiple types)');
     
     // Drag and drop events
     attachDragDropEvents(dragDropArea);
@@ -87,13 +121,23 @@ function attachEventListeners() {
     // File button click
     attachFileButtonEvent(dragDropArea);
     
-    console.log('Event listeners attached successfully');
+    console.log('All event listeners attached successfully');
+}
+
+function ensureFileInputReady() {
+    // Remove this complex function - not needed
+    return true;
 }
 
 function handleFileInputChange(event) {
+    console.log('File input change event triggered:', event);
+    
     const file = event.target.files[0];
     if (file) {
+        console.log('File selected:', file.name, file.type, file.size);
         handleFileSelection(file);
+    } else {
+        console.log('No file selected');
     }
 }
 
@@ -125,14 +169,76 @@ function handleDragAreaClick(e) {
 }
 
 function attachFileButtonEvent(dragDropArea) {
-    const fileButton = dragDropArea.querySelector('.file-input-button');
-    if (fileButton) {
-        fileButton.addEventListener('click', (e) => {
+    // Remove any existing click listeners on the drag drop area
+    const newDragDropArea = dragDropArea.cloneNode(true);
+    dragDropArea.parentNode.replaceChild(newDragDropArea, dragDropArea);
+    
+    // Get fresh reference
+    const freshDragDropArea = document.getElementById('dragDropArea');
+    
+    // Add click event listener
+    freshDragDropArea.addEventListener('click', function(e) {
+        console.log('=== DRAG DROP AREA CLICKED ===');
+        console.log('Target:', e.target);
+        console.log('Closest file button:', e.target.closest('.file-input-button'));
+        
+        if (e.target.closest('.file-input-button')) {
+            console.log('File button clicked - using fresh input approach');
+            e.preventDefault();
             e.stopPropagation();
-            const fileInput = document.getElementById('xmlFileInput');
-            if (fileInput) fileInput.click();
-        });
-    }
+            
+            // Create a completely new file input for Safari
+            const newFileInput = document.createElement('input');
+            newFileInput.type = 'file';
+            newFileInput.accept = '.xml';
+            newFileInput.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 9999;';
+            
+            console.log('Created new file input for Safari');
+            
+            // Add change listener to the new input
+            newFileInput.addEventListener('change', function(event) {
+                console.log('=== NEW FILE INPUT CHANGE EVENT ===');
+                console.log('Event:', event);
+                console.log('Files:', event.target.files);
+                console.log('Files length:', event.target.files.length);
+                
+                if (event.target.files.length > 0) {
+                    const file = event.target.files[0];
+                    console.log('File selected via new input:', file.name, file.type, file.size);
+                    handleFileSelection(file);
+                }
+                
+                // Clean up
+                document.body.removeChild(newFileInput);
+            });
+            
+            // Add to page and trigger immediately
+            document.body.appendChild(newFileInput);
+            
+            console.log('New file input added to DOM, triggering click');
+            
+            // Trigger the file picker on the new input
+            setTimeout(() => {
+                newFileInput.focus();
+                newFileInput.click();
+                
+                // Cleanup if no file selected after 10 seconds
+                setTimeout(() => {
+                    if (newFileInput.parentNode && newFileInput.files.length === 0) {
+                        console.log('Cleaning up unused file input');
+                        document.body.removeChild(newFileInput);
+                    }
+                }, 10000);
+                
+            }, 10);
+        }
+    });
+    
+    console.log('File button event listener attached');
+}
+
+function handleFileButtonClick(e) {
+    // Remove this function - using simpler approach above
 }
 
 function handleDrop(e) {
@@ -173,7 +279,14 @@ function updateFileInput(file) {
 // =============================================================================
 
 function handleFileSelection(file) {
+    console.log('=== HANDLE FILE SELECTION ===');
+    console.log('File received:', file);
+    console.log('File name:', file.name);
+    console.log('File type:', file.type);
+    console.log('File size:', file.size);
+    
     if (!file) {
+        console.log('No file provided');
         showStatus('Please select an XML file first.', 'error');
         return;
     }
@@ -187,11 +300,13 @@ function handleFileSelection(file) {
     
     // Store file information
     originalFileName = file.name;
+    console.log('originalFileName set to:', originalFileName);
     
     // Show processing status
     showStatus('Processing file...', 'info');
     
     // Read file
+    console.log('Starting file read...');
     readFile(file);
 }
 
@@ -253,6 +368,9 @@ function updateDragDropArea(fileName, fileSize) {
     const dragDropArea = document.getElementById('dragDropArea');
     if (!dragDropArea) return;
     
+    console.log('=== UPDATING DRAG DROP AREA ===');
+    console.log('File:', fileName, 'Size:', fileSize);
+    
     const fileSizeText = fileSize ? formatFileSize(fileSize) : '';
     
     dragDropArea.innerHTML = `
@@ -267,15 +385,20 @@ function updateDragDropArea(fileName, fileSize) {
             ${fileSizeText ? `<br><small>${fileSizeText}</small>` : ''}
         </div>
         <div class="file-input-wrapper">
-            <input class="form-control" type="file" id="xmlFileInput" accept=".xml" style="display: none;">
+            <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
             <button class="file-input-button" type="button">
                 <i class="bi bi-folder2-open"></i> Choose Different File
             </button>
         </div>
     `;
     
-    // Reattach event listeners after DOM update
-    setTimeout(() => attachEventListeners(), 0);
+    console.log('DOM updated, waiting 200ms then attaching events...');
+    
+    // Longer timeout for Safari
+    setTimeout(() => {
+        console.log('Attaching event listeners after DOM update');
+        attachEventListeners();
+    }, 200);
 }
 
 function resetDragDropArea() {
@@ -293,15 +416,17 @@ function resetDragDropArea() {
             or click to browse files
         </div>
         <div class="file-input-wrapper">
-            <input class="form-control" type="file" id="xmlFileInput" accept=".xml" style="display: none;">
+            <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
             <button class="file-input-button" type="button">
                 <i class="bi bi-folder2-open"></i> Choose File
             </button>
         </div>
     `;
     
-    // Reattach event listeners
-    attachEventListeners();
+    // Simple timeout for DOM to settle
+    setTimeout(() => {
+        attachEventListeners();
+    }, 100);
 }
 
 // =============================================================================

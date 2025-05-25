@@ -530,8 +530,14 @@
 }
 
 .file-input-wrapper input[type=file] {
-    position: absolute;
-    left: -9999px;
+    /* Don't hide the file input completely - Safari needs it functional */
+    position: static !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    left: auto !important;
 }
 
 .file-input-button {
