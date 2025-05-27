@@ -1,10 +1,10 @@
-/* Enhanced XML Reader Styles - Complete Optimized Version */
+/* Enhanced XML Reader Styles - Refactored for Simple Upload */
 
 /* =============================================================================
    1. CORE TREE STYLING
    ============================================================================= */
 
-.tree-container {
+   .tree-container {
     font-family: 'Courier New', monospace;
     font-size: 14px;
     line-height: 1.4;
@@ -433,131 +433,93 @@
 }
 
 /* =============================================================================
-   8. DRAG AND DROP AREA
+   8. FILE UPLOAD AREA (REFACTORED)
    ============================================================================= */
 
-.drag-drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    padding: 20px;
+.file-upload-area {
     text-align: center;
-    transition: all 0.3s ease;
+    padding: 40px 20px;
     background: #f8f9fa;
-    position: relative;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    border-radius: 10px;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
 }
 
-.drag-drop-area.drag-over {
-    border-color: #007bff;
-    background: #e7f3ff;
-    border-style: solid;
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+.file-upload-area.file-loaded {
+    background: #d4edda;
+    border-color: #28a745;
 }
 
-.drag-drop-area.drag-over::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.05) 100%);
-    border-radius: 8px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 0.8; }
-    100% { opacity: 0.5; }
-}
-
-.drag-drop-icon {
+.file-upload-icon {
     font-size: 3rem;
     color: #6c757d;
     margin-bottom: 15px;
     transition: color 0.3s ease;
 }
 
-.drag-over .drag-drop-icon {
-    color: #007bff;
-    animation: bounce 0.6s ease-in-out;
+.file-upload-area.file-loaded .file-upload-icon {
+    color: #28a745;
 }
 
-@keyframes bounce {
-    0%, 20%, 60%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    80% { transform: translateY(-5px); }
-}
-
-.drag-drop-text {
+.file-upload-text {
     font-size: 1.1rem;
     color: #6c757d;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     transition: color 0.3s ease;
 }
 
-.drag-over .drag-drop-text {
-    color: #007bff;
+.file-upload-area.file-loaded .file-upload-text {
+    color: #155724;
     font-weight: 600;
 }
 
-.drag-drop-subtext {
-    font-size: 0.9rem;
-    color: #adb5bd;
-    transition: color 0.3s ease;
+.file-upload-button-wrapper {
+    margin-bottom: 10px;
 }
 
-.drag-over .drag-drop-subtext {
-    color: #0056b3;
-}
-
-/* =============================================================================
-   9. FILE INPUT STYLING
-   ============================================================================= */
-
-.file-input-wrapper {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    width: 100%;
-    margin-top: 15px;
-}
-
-.file-input-wrapper input[type=file] {
-    /* Don't hide the file input completely - Safari needs it functional */
-    position: static !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    visibility: hidden !important;
-    width: 0 !important;
-    height: 0 !important;
-    left: auto !important;
-}
-
-.file-input-button {
-    background: #007bff;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
+.file-upload-area .btn {
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 6px;
     transition: all 0.3s ease;
 }
 
-.file-input-button:hover {
-    background: #0056b3;
+.file-upload-area .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.file-upload-area.file-loaded .btn {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.file-upload-area.file-loaded .btn:hover {
+    background-color: #1e7e34;
+    border-color: #1c7430;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+/* File info display */
+.file-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.file-info strong {
+    color: #155724;
+}
+
+.file-info small {
+    color: #6c757d;
 }
 
 /* =============================================================================
-   10. EXPORT AND UI ELEMENTS
+   9. EXPORT AND UI ELEMENTS
    ============================================================================= */
 
 .export-btn {
@@ -595,7 +557,7 @@
 }
 
 /* =============================================================================
-   11. ENHANCED BUTTON STYLING
+   10. ENHANCED BUTTON STYLING
    ============================================================================= */
 
 /* Action buttons in the controls section */
@@ -634,7 +596,7 @@
 }
 
 /* =============================================================================
-   12. RESULTS HEADER AND BADGES
+   11. RESULTS HEADER AND BADGES
    ============================================================================= */
 
 /* Results header with filter indicators */
@@ -674,7 +636,7 @@
 }
 
 /* =============================================================================
-   13. LOADING AND TRANSITION STATES
+   12. LOADING AND TRANSITION STATES
    ============================================================================= */
 
 /* Smooth transitions for showing/hiding elements */
@@ -712,7 +674,7 @@
 }
 
 /* =============================================================================
-   14. COLLAPSIBLE SECTIONS
+   13. COLLAPSIBLE SECTIONS
    ============================================================================= */
 
 /* Collapsible section styling */
@@ -927,7 +889,7 @@
 }
 
 /* =============================================================================
-   15. GO TO LINE FUNCTIONALITY
+   14. GO TO LINE FUNCTIONALITY
    ============================================================================= */
 
 /* Go To Line input styling */
@@ -1024,7 +986,7 @@
 }
 
 /* =============================================================================
-   16. RESPONSIVE DESIGN
+   15. RESPONSIVE DESIGN
    ============================================================================= */
 
 /* Mobile responsive adjustments */
@@ -1098,6 +1060,18 @@
         min-width: 200px;
         max-width: 300px;
     }
+    
+    .file-upload-area {
+        padding: 20px 15px;
+    }
+    
+    .file-upload-icon {
+        font-size: 2rem;
+    }
+    
+    .file-upload-text {
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1131,10 +1105,19 @@
         padding: 0.2rem 0.4rem;
         font-size: 0.7rem;
     }
+    
+    .file-upload-area {
+        padding: 15px 10px;
+    }
+    
+    .file-upload-area .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
 }
 
 /* =============================================================================
-   17. ACCESSIBILITY IMPROVEMENTS
+   16. ACCESSIBILITY IMPROVEMENTS
    ============================================================================= */
 
 /* Focus indicators */
@@ -1185,7 +1168,7 @@
 }
 
 /* =============================================================================
-   18. PRINT STYLES
+   17. PRINT STYLES
    ============================================================================= */
 
 @media print {
@@ -1209,10 +1192,14 @@
         background: white;
         color: #000;
     }
+    
+    .file-upload-area {
+        display: none !important;
+    }
 }
 
 /* =============================================================================
-   19. SPINNER AND LOADING STATES
+   18. SPINNER AND LOADING STATES
    ============================================================================= */
 
 /* Bootstrap spinner for loading states */
@@ -1251,7 +1238,7 @@
 }
 
 /* =============================================================================
-   20. TOOLTIP AND POPOVER ENHANCEMENTS
+   19. TOOLTIP AND POPOVER ENHANCEMENTS
    ============================================================================= */
 
 /* Custom tooltip styling */
@@ -1294,7 +1281,7 @@
 }
 
 /* =============================================================================
-   21. ADDITIONAL UTILITY CLASSES
+   20. ADDITIONAL UTILITY CLASSES
    ============================================================================= */
 
 /* Text utilities */
@@ -1340,7 +1327,7 @@
 }
 
 /* =============================================================================
-   22. DARK MODE SUPPORT (Optional)
+   21. DARK MODE SUPPORT (Optional)
    ============================================================================= */
 
 /* Dark mode variables and styles can be added here if needed */
@@ -1350,7 +1337,7 @@
 }
 
 /* =============================================================================
-   23. CUSTOM SCROLLBAR STYLING
+   22. CUSTOM SCROLLBAR STYLING
    ============================================================================= */
 
 /* Custom scrollbar for tree results container */
@@ -1379,7 +1366,7 @@
 }
 
 /* =============================================================================
-   24. FINAL OPTIMIZATIONS
+   23. FINAL OPTIMIZATIONS
    ============================================================================= */
 
 /* Ensure all transitions are smooth */

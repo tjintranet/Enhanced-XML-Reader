@@ -1,5 +1,5 @@
 /**
- * XML Core Processing Module - Complete Optimized Version
+ * XML Core Processing Module - Refactored for Simple Upload
  * Handles file operations, XML parsing, and data structure building
  */
 
@@ -30,11 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeCore() {
-    // Prevent default drag behaviors on the entire page
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        document.body.addEventListener(eventName, preventDefaults, false);
-    });
-    
     // Simple initialization
     attachEventListeners();
     
@@ -57,77 +52,28 @@ function initializeUIState() {
 }
 
 // =============================================================================
-// EVENT HANDLING
+// EVENT HANDLING (SIMPLIFIED)
 // =============================================================================
 
-function preventDefaults(e) {
-    e.preventDefault();
-    e.stopPropagation();
-}
-
 function attachEventListeners() {
-    const dragDropArea = document.getElementById('dragDropArea');
     const fileInput = document.getElementById('xmlFileInput');
     
     console.log('attachEventListeners called');
-    console.log('dragDropArea found:', !!dragDropArea);
     console.log('fileInput found:', !!fileInput);
     
-    if (!dragDropArea || !fileInput) {
-        console.warn('Core UI elements not found, retrying...');
+    if (!fileInput) {
+        console.warn('File input not found, retrying...');
         setTimeout(attachEventListeners, 500);
         return;
     }
     
-    // Remove any existing listeners first
-    const newFileInput = fileInput.cloneNode(true);
-    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+    // Attach change event listener directly to the visible file input
+    fileInput.addEventListener('change', handleFileInputChange);
     
-    // Get fresh reference
-    const freshFileInput = document.getElementById('xmlFileInput');
-    console.log('Fresh file input found:', !!freshFileInput);
-    
-    // Add multiple event listeners for Safari compatibility
-    const handleFileChange = function(event) {
-        console.log('=== FILE INPUT CHANGE EVENT ===');
-        console.log('Event type:', event.type);
-        console.log('Event:', event);
-        console.log('Files:', event.target.files);
-        console.log('Files length:', event.target.files.length);
-        
-        if (event.target.files.length > 0) {
-            const file = event.target.files[0];
-            console.log('File selected:', file.name, file.type, file.size);
-            handleFileSelection(file);
-        } else {
-            console.log('No files selected');
-        }
-    };
-    
-    // Multiple event types for Safari compatibility
-    freshFileInput.addEventListener('change', handleFileChange);
-    freshFileInput.addEventListener('input', handleFileChange);
-    freshFileInput.onchange = handleFileChange;
-    freshFileInput.oninput = handleFileChange;
-    
-    console.log('File input change listeners attached (multiple types)');
-    
-    // Drag and drop events
-    attachDragDropEvents(dragDropArea);
-    
-    // Click to upload (excluding button clicks)
-    dragDropArea.addEventListener('click', handleDragAreaClick);
-    
-    // File button click
-    attachFileButtonEvent(dragDropArea);
-    
-    console.log('All event listeners attached successfully');
+    console.log('File input change listener attached');
 }
 
-function ensureFileInputReady() {
-    // Remove this complex function - not needed
-    return true;
-}
+// Remove the triggerFileUpload function as it's no longer needed
 
 function handleFileInputChange(event) {
     console.log('File input change event triggered:', event);
@@ -138,139 +84,6 @@ function handleFileInputChange(event) {
         handleFileSelection(file);
     } else {
         console.log('No file selected');
-    }
-}
-
-function attachDragDropEvents(dragDropArea) {
-    // Drag enter and over events
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dragDropArea.addEventListener(eventName, () => {
-            dragDropArea.classList.add('drag-over');
-        });
-    });
-    
-    // Drag leave and drop events
-    ['dragleave', 'drop'].forEach(eventName => {
-        dragDropArea.addEventListener(eventName, () => {
-            dragDropArea.classList.remove('drag-over');
-        });
-    });
-    
-    // Drop event
-    dragDropArea.addEventListener('drop', handleDrop);
-}
-
-function handleDragAreaClick(e) {
-    // Only trigger file input if clicking on the drag area itself, not buttons
-    if (!e.target.closest('.file-input-button')) {
-        const fileInput = document.getElementById('xmlFileInput');
-        if (fileInput) fileInput.click();
-    }
-}
-
-function attachFileButtonEvent(dragDropArea) {
-    // Remove any existing click listeners on the drag drop area
-    const newDragDropArea = dragDropArea.cloneNode(true);
-    dragDropArea.parentNode.replaceChild(newDragDropArea, dragDropArea);
-    
-    // Get fresh reference
-    const freshDragDropArea = document.getElementById('dragDropArea');
-    
-    // Add click event listener
-    freshDragDropArea.addEventListener('click', function(e) {
-        console.log('=== DRAG DROP AREA CLICKED ===');
-        console.log('Target:', e.target);
-        console.log('Closest file button:', e.target.closest('.file-input-button'));
-        
-        if (e.target.closest('.file-input-button')) {
-            console.log('File button clicked - using fresh input approach');
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Create a completely new file input for Safari
-            const newFileInput = document.createElement('input');
-            newFileInput.type = 'file';
-            newFileInput.accept = '.xml';
-            newFileInput.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 9999;';
-            
-            console.log('Created new file input for Safari');
-            
-            // Add change listener to the new input
-            newFileInput.addEventListener('change', function(event) {
-                console.log('=== NEW FILE INPUT CHANGE EVENT ===');
-                console.log('Event:', event);
-                console.log('Files:', event.target.files);
-                console.log('Files length:', event.target.files.length);
-                
-                if (event.target.files.length > 0) {
-                    const file = event.target.files[0];
-                    console.log('File selected via new input:', file.name, file.type, file.size);
-                    handleFileSelection(file);
-                }
-                
-                // Clean up
-                document.body.removeChild(newFileInput);
-            });
-            
-            // Add to page and trigger immediately
-            document.body.appendChild(newFileInput);
-            
-            console.log('New file input added to DOM, triggering click');
-            
-            // Trigger the file picker on the new input
-            setTimeout(() => {
-                newFileInput.focus();
-                newFileInput.click();
-                
-                // Cleanup if no file selected after 10 seconds
-                setTimeout(() => {
-                    if (newFileInput.parentNode && newFileInput.files.length === 0) {
-                        console.log('Cleaning up unused file input');
-                        document.body.removeChild(newFileInput);
-                    }
-                }, 10000);
-                
-            }, 10);
-        }
-    });
-    
-    console.log('File button event listener attached');
-}
-
-function handleFileButtonClick(e) {
-    // Remove this function - using simpler approach above
-}
-
-function handleDrop(e) {
-    const files = e.dataTransfer.files;
-    
-    if (files.length === 0) return;
-    
-    const file = files[0];
-    
-    // Validate file type
-    if (isValidXMLFile(file)) {
-        handleFileSelection(file);
-        updateFileInput(file);
-    } else {
-        showStatus('Please drop a valid XML file (.xml extension required)', 'error');
-    }
-}
-
-function isValidXMLFile(file) {
-    const validTypes = ['text/xml', 'application/xml'];
-    const validExtension = file.name.toLowerCase().endsWith('.xml');
-    
-    return validTypes.includes(file.type) || validExtension;
-}
-
-function updateFileInput(file) {
-    // Update the file input to reflect the dropped file
-    const fileInput = document.getElementById('xmlFileInput');
-    if (fileInput) {
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        fileInput.files = dataTransfer.files;
     }
 }
 
@@ -291,12 +104,21 @@ function handleFileSelection(file) {
         return;
     }
     
+    // Validate file type
+    if (!isValidXMLFile(file)) {
+        showStatus('Please select a valid XML file (.xml extension required)', 'error');
+        return;
+    }
+    
     // Validate file size (warn for very large files)
     if (file.size > 10 * 1024 * 1024) { // 10MB
         if (!confirm(`Large file detected (${formatFileSize(file.size)}). This may take some time to process. Continue?`)) {
             return;
         }
     }
+    
+    // Clear all existing data and UI before processing new file
+    clearAllData();
     
     // Store file information
     originalFileName = file.name;
@@ -310,6 +132,13 @@ function handleFileSelection(file) {
     readFile(file);
 }
 
+function isValidXMLFile(file) {
+    const validTypes = ['text/xml', 'application/xml'];
+    const validExtension = file.name.toLowerCase().endsWith('.xml');
+    
+    return validTypes.includes(file.type) || validExtension;
+}
+
 function readFile(file) {
     const reader = new FileReader();
     
@@ -320,7 +149,7 @@ function readFile(file) {
             // Validate XML before processing
             if (validateXMLString(originalXMLString)) {
                 parseXML(originalXMLString);
-                updateDragDropArea(file.name, file.size);
+                updateFileUploadArea(file.name, file.size);
                 hideStatus();
             } else {
                 showStatus('Invalid XML format detected.', 'error');
@@ -364,69 +193,35 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-function updateDragDropArea(fileName, fileSize) {
-    const dragDropArea = document.getElementById('dragDropArea');
-    if (!dragDropArea) return;
+function updateFileUploadArea(fileName, fileSize) {
+    const xmlInfoDiv = document.getElementById('xmlInfo');
+    if (!xmlInfoDiv) return;
     
-    console.log('=== UPDATING DRAG DROP AREA ===');
+    console.log('=== UPDATING XML INFO AREA ===');
     console.log('File:', fileName, 'Size:', fileSize);
     
     const fileSizeText = fileSize ? formatFileSize(fileSize) : '';
     
-    dragDropArea.innerHTML = `
-        <div class="drag-drop-icon" style="color: #28a745;">
-            <i class="bi bi-check-circle-fill"></i>
-        </div>
-        <div class="drag-drop-text" style="color: #28a745;">
-            File loaded successfully!
-        </div>
-        <div class="drag-drop-subtext">
-            <strong>${fileName}</strong>
-            ${fileSizeText ? `<br><small>${fileSizeText}</small>` : ''}
-        </div>
-        <div class="file-input-wrapper">
-            <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
-            <button class="file-input-button" type="button">
-                <i class="bi bi-folder2-open"></i> Choose Different File
-            </button>
-        </div>
-    `;
+    // Update XML info section with file details
+    let infoHTML = '<dl class="row mb-0">';
+    infoHTML += `<dt class="col-sm-4">File Name:</dt><dd class="col-sm-8">${fileName}</dd>`;
+    if (fileSizeText) {
+        infoHTML += `<dt class="col-sm-4">File Size:</dt><dd class="col-sm-8">${fileSizeText}</dd>`;
+    }
+    infoHTML += `<dt class="col-sm-4">Status:</dt><dd class="col-sm-8"><span class="text-success">Successfully loaded</span></dd>`;
+    infoHTML += '</dl>';
     
-    console.log('DOM updated, waiting 200ms then attaching events...');
+    xmlInfoDiv.innerHTML = infoHTML;
     
-    // Longer timeout for Safari
-    setTimeout(() => {
-        console.log('Attaching event listeners after DOM update');
-        attachEventListeners();
-    }, 200);
+    console.log('XML info area updated successfully');
 }
 
-function resetDragDropArea() {
-    const dragDropArea = document.getElementById('dragDropArea');
-    if (!dragDropArea) return;
+function resetFileUploadArea() {
+    const xmlInfoDiv = document.getElementById('xmlInfo');
+    if (!xmlInfoDiv) return;
     
-    dragDropArea.innerHTML = `
-        <div class="drag-drop-icon">
-            <i class="bi bi-cloud-upload"></i>
-        </div>
-        <div class="drag-drop-text">
-            Drag & Drop your XML file here
-        </div>
-        <div class="drag-drop-subtext">
-            or click to browse files
-        </div>
-        <div class="file-input-wrapper">
-            <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
-            <button class="file-input-button" type="button">
-                <i class="bi bi-folder2-open"></i> Choose File
-            </button>
-        </div>
-    `;
-    
-    // Simple timeout for DOM to settle
-    setTimeout(() => {
-        attachEventListeners();
-    }, 100);
+    // Reset XML info section
+    xmlInfoDiv.innerHTML = '<p class="text-muted">XML file information will appear here after upload</p>';
 }
 
 // =============================================================================
@@ -693,6 +488,35 @@ function showControlSections() {
             element.style.display = 'block';
         }
     });
+}
+
+// =============================================================================
+// DATA CLEARING AND RESET
+// =============================================================================
+
+function clearAllData() {
+    // Reset core variables
+    parsedXMLData = null;
+    originalXMLString = '';
+    originalFileName = '';
+    namespaceMap.clear();
+    
+    // Reset performance metrics
+    performanceMetrics = {
+        parseStartTime: 0,
+        parseEndTime: 0,
+        renderStartTime: 0,
+        renderEndTime: 0
+    };
+    
+    // Clear results
+    const resultDiv = document.getElementById('result');
+    if (resultDiv) resultDiv.innerHTML = '';
+    
+    // Reset other modules
+    resetModules();
+    
+    console.log('All data cleared for new file');
 }
 
 // =============================================================================
@@ -973,8 +797,12 @@ function resetApplicationState() {
         renderEndTime: 0
     };
     
-    // Reset UI
-    resetDragDropArea();
+    // Reset file input
+    const fileInput = document.getElementById('xmlFileInput');
+    if (fileInput) fileInput.value = '';
+    
+    // Reset XML info
+    resetFileUploadArea();
     hideStatus();
     
     // Hide control sections
@@ -1013,8 +841,8 @@ function clearAll() {
             if (element) element.style.display = 'none';
         });
         
-        // Reset drag drop area
-        resetDragDropArea();
+        // Reset XML info
+        resetFileUploadArea();
         
         // Reset core variables
         parsedXMLData = null;

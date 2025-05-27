@@ -32,33 +32,32 @@
                     <div class="card-body">
                         <!-- File Upload Section -->
                         <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card shadow-sm collapsible-section" id="uploadSection">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center section-header" onclick="toggleSection('uploadSection')">
+                            <div class="col-md-6">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-header bg-light">
                                         <h5 class="card-title mb-0">
                                             <i class="bi bi-upload"></i> File Upload
                                         </h5>
-                                        <button class="btn btn-sm btn-outline-secondary collapse-btn" type="button">
-                                            <i class="bi bi-chevron-up"></i>
-                                        </button>
                                     </div>
-                                    <div class="card-body section-content">
-                                        <div class="drag-drop-area" id="dragDropArea">
-                                            <div class="drag-drop-icon">
-                                                <i class="bi bi-cloud-upload"></i>
-                                            </div>
-                                            <div class="drag-drop-text">
-                                                Drag & Drop your XML file here
-                                            </div>
-                                            <div class="drag-drop-subtext">
-                                                or click to browse files
-                                            </div>
-                                            <div class="file-input-wrapper">
-                                                <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
-                                                <button class="file-input-button" type="button">
-                                                    <i class="bi bi-folder2-open"></i> Choose File
-                                                </button>
-                                            </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="xmlFileInput" class="form-label">Upload XML File</label>
+                                            <input class="form-control" type="file" id="xmlFileInput" accept=".xml">
+                                            <div class="form-text">Accepts XML (.xml) files</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-header bg-light">
+                                        <h5 class="card-title mb-0">
+                                            <i class="bi bi-info-circle"></i> XML Information
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="xmlInfo" class="small">
+                                            <p class="text-muted">XML file information will appear here after upload</p>
                                         </div>
                                     </div>
                                 </div>
